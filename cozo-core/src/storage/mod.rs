@@ -164,7 +164,9 @@ pub trait StoreTx<'s>: Sync {
     fn exists(&self, key: &[u8], for_update: bool) -> Result<bool>;
 
     /// Commit a transaction. Must return an `Err` if MVCC consistency cannot be guaranteed,
-    /// and discard all changes introduced by this transaction.
+    /// and discard all changes introduced by this transaction on a known abort.
+    /// A remote backend must distinguish an unknown commit outcome (lost primary
+    /// acknowledgement): callers must reconcile it, never blindly roll back or replay.
     fn commit(&mut self) -> Result<()>;
 
     /// Scan on a range. `lower` is inclusive whereas `upper` is exclusive.

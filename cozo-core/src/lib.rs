@@ -108,7 +108,10 @@ pub use storage::sled::{new_cozo_sled, SledStorage};
 #[cfg(feature = "storage-sqlite")]
 pub use storage::sqlite::{new_cozo_sqlite, SqliteStorage};
 #[cfg(feature = "storage-tikv")]
-pub use storage::tikv::{new_cozo_tikv, TiKvStorage};
+pub use storage::tikv::{
+    new_cozo_tikv, new_cozo_tikv_with_config, TiKvCommitUnknown, TiKvConfig, TiKvStorage,
+    TiKvTlsConfig,
+};
 pub use storage::{Storage, StoreTx};
 
 pub use crate::data::expr::Expr;
@@ -247,13 +250,8 @@ impl DbInstance {
             "sled" => Self::Sled(new_cozo_sled(path)?),
             #[cfg(feature = "storage-tikv")]
             "tikv" => {
-                #[derive(serde_derive::Deserialize)]
-                struct TiKvOpts {
-                    end_points: Vec<String>,
-                    optimistic: bool,
-                }
-                let opts: TiKvOpts = serde_json::from_str(options).into_diagnostic()?;
-                Self::TiKv(new_cozo_tikv(opts.end_points.clone(), opts.optimistic)?)
+                let opts: TiKvConfig = serde_json::from_str(options).into_diagnostic()?;
+                Self::TiKv(new_cozo_tikv_with_config(opts)?)
             }
             k => bail!(
                 "database engine '{}' not supported (maybe not compiled in)",

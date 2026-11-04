@@ -400,6 +400,7 @@ with range scan capabilities. There are various implementations:
 * [RocksDB](http://rocksdb.org/) storage backend
 * [Sled](https://github.com/spacejam/sled) storage backend
 * [TiKV](https://tikv.org/) distributed storage backend
+  ([connection settings, ownership and recovery](docs/tikv-storage.md))
 
 Depending on the build configuration, not all backends may be available
 in a binary release.
